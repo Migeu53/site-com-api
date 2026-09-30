@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MEGA LIXO STORE</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#ffff99;--fg:#1a1a1a;--card:#fff;--accent:#ff00aa;--accent2:#00c2ff;--line:#000}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a0a3a;--fg:#fdf6a8;--card:#3d1255;--line:#fdf6a8}}
+:root[data-theme="dark"]{--bg:#2a0a3a;--fg:#fdf6a8;--card:#3d1255;--line:#fdf6a8}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Comic Sans MS","Comic Sans",cursive,sans-serif;
+background-image:radial-gradient(var(--accent) 1px,transparent 1px);background-size:18px 18px}
+header{background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));color:#fff;text-align:center;padding:10px;border-bottom:4px dashed var(--line)}
+h1{margin:0;font-size:clamp(1.6rem,6vw,2.8rem);text-shadow:3px 3px #000;animation:pulse 1s infinite alternate}
+@keyframes pulse{to{transform:scale(1.04) rotate(-1deg)}}
+.marquee{background:#000;color:#0f0;font-family:monospace;padding:4px 0;overflow:hidden;white-space:nowrap}
+.marquee span{display:inline-block;padding-left:100%;animation:m 16s linear infinite}
+@keyframes m{to{transform:translateX(-100%)}}
+nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:12px}
+button{font:inherit;cursor:pointer;border:3px outset var(--accent2);background:var(--accent2);color:#000;padding:6px 12px;font-weight:bold}
+button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+button:active{border-style:inset}
+main{max-width:1000px;margin:0 auto;padding:0 12px 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.card{background:var(--card);border:3px solid var(--line);padding:10px;display:flex;flex-direction:column;gap:6px;position:relative;box-shadow:5px 5px 0 var(--accent)}
+.card .img{font-size:64px;text-align:center;background:repeating-linear-gradient(45deg,#ffe,#ffe 8px,#fde 8px,#fde 16px);border:2px dotted var(--line);padding:8px}
+.card h3{margin:0;font-size:.95rem}
+.card p{margin:0;font-size:.75rem;opacity:.85;flex:1}
+.old{text-decoration:line-through;color:red;font-size:.8rem}
+.price{font-size:1.3rem;font-weight:bold;color:var(--accent)}
+.tag{position:absolute;top:-8px;right:-8px;background:red;color:#fff;padding:2px 8px;transform:rotate(12deg);font-size:.75rem;font-weight:bold}
+#cart{position:fixed;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));background:var(--card);border:4px double var(--line);padding:10px;width:min(280px,90vw);max-height:60vh;overflow:auto;z-index:5}
+#cart h4{margin:0 0 6px}
+.row{display:flex;justify-content:space-between;gap:6px;font-size:.8rem;border-bottom:1px dashed var(--line);padding:3px 0}
+pre{background:#000;color:#0f0;padding:10px;overflow-x:auto;max-height:260px;font-size:.75rem}
+footer{text-align:center;padding:20px 20px 120px;font-size:.75rem}
+</style>
+</head>
+<body>
+<header><h1>🔥 MEGA LIXO STORE 🔥</h1><div>Os piores produtos pelos melhores preços!!!</div></header>
+<div class="marquee"><span>⚠️ FRETE GRÁTIS PRA LUA ⚠️ COMPRE 1 LEVE 0 ⚠️ ESTOQUE INFINITO (MENTIRA) ⚠️ NÃO ACEITAMOS DEVOLUÇÃO ⚠️</span></div>
+<main>
+<nav id="cats"></nav>
+<div style="text-align:center;margin-bottom:12px"><button id="apiBtn">👁️ Ver JSON da API</button></div>
+<pre id="apiOut" hidden></pre>
+<div class="grid" id="grid"><p>Carregando lixo...</p></div>
+</main>
+<aside id="cart"><h4>🛒 Carrinho (<span id="cnt">0</span>)</h4><div id="items"><i>Vazio, igual sua conta.</i></div><hr><b>Total: R$ <span id="total">0,00</span></b><br><button id="buy" style="margin-top:6px;width:100%">COMPRAR JÁ!!!</button></aside>
+<footer>© 2003 Mega Lixo Store — CNPJ 00.000.000/0000-00 — Melhor visto no Internet Explorer 6</footer>
+
+<script>
+/* ===== FAKE API (estilo fakestoreapi.com) — roda tudo local ===== */
+const DB=[
+{id:1,title:"Mochila que Parece Saco de Lixo",price:29.9,description:"Cabe 3 livros e nenhuma dignidade.",category:"bolsas",image:"🎒",rating:{rate:3.1,count:120}},
+{id:2,title:"Camisa 'Eu ❤️ Segunda-feira'",price:19.9,description:"100% poliéster, 0% verdade.",category:"roupas",image:"👕",rating:{rate:2.4,count:89}},
+{id:3,title:"Meia Estampada (só o pé esquerdo)",price:9.9,description:"Venda casada com o pé direito não incluso.",category:"roupas",image:"🧦",rating:{rate:4.5,count:430}},
+{id:4,title:"Fone Bluetooth de Barbante",price:49.9,description:"Conecta por fé. Bateria dura o mesmo que um story.",category:"eletronicos",image:"🎧",rating:{rate:1.9,count:301}},
+{id:5,title:"Smartwatch de Madeira",price:199.9,description:"Não mede batimentos, mede só o tempo (às vezes).",category:"eletronicos",image:"⌚",rating:{rate:3.3,count:57}},
+{id:6,title:"Carregador 1% de Velocidade",price:39.9,description:"Carrega enquanto você dorme. E acorda. E dorme de novo.",category:"eletronicos",image:"🔌",rating:{rate:2.0,count:210}},
+{id:7,title:"Caneca com Rachadura Premium",price:14.9,description:"Vazamento exclusivo de fábrica.",category:"casa",image:"☕",rating:{rate:3.8,count:76}},
+{id:8,title:"Vela Aroma de Pneu Queimado",price:24.9,description:"Seu vizinho vai amar.",category:"casa",image:"🕯️",rating:{rate:4.1,count:44}},
+{id:9,title:"Cadeira Gamer de Caixote",price:149.9,description:"Ergonomia duvidosa, lascas inclusas.",category:"casa",image:"🪑",rating:{rate:2.7,count:33}},
+{id:10,title:"Óculos de Sol Noturno",price:34.9,description:"Só funciona à meia-noite. Escurece tudo.",category:"bolsas",image:"🕶️",rating:{rate:3.5,count:98}},
+{id:11,title:"Boné 'Desconhecido'",price:22.9,description:"Serve em ninguém, cabe em todo mundo.",category:"roupas",image:"🧢",rating:{rate:4.0,count:150}},
+{id:12,title:"Mouse com Cauda de Verdade",price:59.9,description:"Adaptação de ratinho. Precisa alimentar.",category:"eletronicos",image:"🐭",rating:{rate:4.9,count:12}}
+];
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const api={
+ async get(path){await wait(400);
+  if(path==="/products")return DB;
+  if(path==="/products/categories")return [...new Set(DB.map(p=>p.category))];
+  let m=path.match(/^\/products\/category\/(.+)$/);if(m)return DB.filter(p=>p.category===m[1]);
+  m=path.match(/^\/products\/(\d+)$/);if(m)return DB.find(p=>p.id==m[1])||null;
+  throw new Error("404 lixo não encontrado");}
+};
+
+/* ===== APP ===== */
+const $=id=>document.getElementById(id);
+const brl=n=>n.toFixed(2).replace(".",",");
+let cart={},current="todos";
+
+async function load(cat){
+ current=cat;$("grid").innerHTML="<p>Carregando lixo...</p>";
+ const path=cat==="todos"?"/products":"/products/category/"+cat;
+ const data=await api.get(path);
+ $("apiOut").dataset.path="GET "+path;$("apiOut").textContent="GET /"+path.slice(1)+"\n"+JSON.stringify(data.slice(0,2),null,2)+(data.length>2?"\n... +"+(data.length-2)+" itens":"");
+ $("grid").innerHTML=data.map(p=>`<div class="card"><span class="tag">-${50+p.id*3}%</span>
+ <div class="img">${p.image}</div><h3>${p.title}</h3><p>${p.description}</p>
+ <div>⭐ ${p.rating.rate} <small>(${p.rating.count})</small></div>
+ <div><span class="old">R$ ${brl(p.price*2.5)}</span> <span class="price">R$ ${brl(p.price)}</span></div>
+ <button data-id="${p.id}">ADICIONAR 🛒</button></div>`).join("");
+ document.querySelectorAll("#cats button").forEach(b=>b.classList.toggle("on",b.dataset.c===cat));
+}
+function renderCart(){
+ const ids=Object.keys(cart);let total=0,n=0;
+ $("items").innerHTML=ids.length?ids.map(id=>{const p=DB.find(x=>x.id==id),q=cart[id];total+=p.price*q;n+=q;
+ return `<div class="row"><span>${p.image} ${p.title} x${q}</span><b>${brl(p.price*q)}</b></div>`}).join(""):"<i>Vazio, igual sua conta.</i>";
+ $("cnt").textContent=n;$("total").textContent=brl(total);
+}
+$("grid").onclick=e=>{const id=e.target.dataset.id;if(!id)return;cart[id]=(cart[id]||0)+1;renderCart()};
+$("apiBtn").onclick=()=>{$("apiOut").hidden=!$("apiOut").hidden};
+$("buy").onclick=()=>{if(!Object.keys(cart).length)return alert("Carrinho vazio! Compre algo, pobre!");
+ alert("🎉 PARABÉNS! Você comprou lixo. Seu pedido NUNCA chegará. Código de rastreio: LIXO"+Math.floor(Math.random()*99999));cart={};renderCart()};
+(async()=>{
+ const cats=await api.get("/products/categories");
+ $("cats").innerHTML=["todos",...cats].map(c=>`<button data-c="${c}">${c.toUpperCase()}</button>`).join("");
+ $("cats").onclick=e=>{if(e.target.dataset.c)load(e.target.dataset.c)};
+ load("todos");
+})();
+</script>
+</body>
+</html>
